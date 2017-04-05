@@ -4,6 +4,9 @@ from random import choice
 
 EOS = ['.', '?', '!',',']
 
+#TODO implement rhyming
+#TODO add upsidedown question to beginning of sentences that end in a question + question word
+#TODO perhaps make smarter markov model with probabilities
 
 def build_dict(words):
     '''Build a Dictionary from words
