@@ -106,8 +106,6 @@ def syllable_count(text):
 
     return count
 
-syllable_count('De Cielos, y Elementos ordenado')
-
 
 
 
