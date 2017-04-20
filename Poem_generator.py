@@ -26,7 +26,7 @@ vocab_dict = {}
 for i in range(vocab_size):
     wid, word = line_lst[i].split()
     vocab_index.append(word)
-    vocab_dict[word] = wid
+    vocab_dict[word] = int(wid)
 
 # Reading unigram file
 line_lst = []
@@ -64,45 +64,50 @@ for line in line_lst:
     prob = float(prob)
     if w1 not in bigrams:
         bigrams[w1] = np.zeros(vocab_size)
-
+    
     bigrams[w1][w0_id] = prob
 
 
 def generate_poem(topic_words):
     gen_poem = []
-    start_words = np.argsort(unigrams)[-100:]
-    shuffle(start_words)
     used_words = set()
+    
+    # get rhyme words from text
+    rhyme_words = grw.get_rhyme_words(topic_words)
+    
     for i in range(0, 14):
-        poem_line = [vocab_index[start_words[i]]]
-        used_words.add(vocab_index[start_words[i]])
-        for j in range(0, 6):
+        
+        # add a rhyme word at the end of the line
+        poem_line = [rhyme_words[i]]
+        used_words.add(rhyme_words[i])
+        
+        for j in range(0, 7):
+            # use bayes' rule to calculate the probability backward
+            bayes_prob = np.zeros(vocab_size)
+            
+            for w1 in bigrams:
+                prev_token = poem_line[0]
+                if prev_token not in vocab_dict:
+                    prev_token = 'ukn'
+                bayes_prob[vocab_dict[w1]] = bigrams[w1][vocab_dict[prev_token]]*unigrams[vocab_dict[w1]]
+            
             index = -1
-            indices = np.argsort(bigrams[poem_line[-1]])[-20:]
+            indices = np.argsort(bayes_prob)[-20:]
             for k in range(1, len(indices) + 1):
                 if vocab_index[indices[-k]] not in used_words:
                     index = indices[-k]
                     break
-            if index == -1:
-                indices = np.argsort(unigrams)[-80:]
-                for k in range(1, 81):
-                    if vocab_index[indices[-k]] not in used_words:
-                        index = indices[-k]
-                        break
+        
             word = vocab_index[index]
             used_words.add(word)
-            poem_line.append(word)
-        gen_poem.append(poem_line)
+        poem_line = [word] + poem_line
+    gen_poem.append(poem_line)
 
-    # get rhyme words from text
-    rhyme_words = grw.get_rhyme_words(topic_words)
-
-    for k in range(0, 14):
-        gen_poem[k].append(rhyme_words[k])
-
-        for j in range(0, len(gen_poem[k])):
-            print(gen_poem[k][j], end=' ')
-
+for k in range(0, 14):
+    
+    for j in range(0, len(gen_poem[k])):
+        print(gen_poem[k][j], end=' ')
+        
         print('\n')
 
-
+#generate_poem('gato')
