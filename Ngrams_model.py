@@ -5,13 +5,14 @@
 
 import numpy as np
 import re
+import codecs
 
 
 # In[2]:
 
 line_lst = []
 
-with open('poembot/justpoems.txt') as model_file:
+with codecs.open('poembot/justpoems.txt', encoding='utf-8') as model_file:
     for line in model_file:
         line_lst.append(line[:-1])
         
@@ -24,93 +25,35 @@ def abs_discount(count):
     discount_rate = (count-0.75)/count
     return discount_rate
 
+def ukn_discount(count):
+    discount_rate = 0.25/count
+    return discount_rate
+
 
 # In[4]:
 
 poem_lst = []
 tmp_lst = []
 
-start_symbol = 'q0'
-end_symbol = 'qn'
-unknown = 'ukn'
-
-symbols = ['¿']
-
-tri_count = {}
-bi_count = {}
-uni_count = {}
-
-vocabulary = set()
-
-total_count = 0
+#more_to_fix = '»-:«¡'
 
 for line in line_lst:
-    w1 = ''
-    w2 = ''
     if line != '':
         
         line = line.lower()
         
+        token_lst = []
+        
         for token in line.split():
+            '''
             token = re.sub('[¿.?!,;)"]', '', token)
             if len(token) == 0 or token == ' ':
                 continue
-                
-            total_count += 1
-            vocabulary.add(token)
+            '''
             
-            if w1 == '': 
-                if token not in uni_count:
-                    uni_count[token] = 1
-                else:
-                    uni_count[token] += 1
-            elif w2 == '':
-                if token not in uni_count:
-                    uni_count[token] = 1
-                else:
-                    uni_count[token] += 1
-                    
-                if w1 not in bi_count:
-                    bi_count[w1] = dict()
-                    bi_count[w1][token] = 1
-                else:
-                    if token not in bi_count[w1]:
-                        bi_count[w1][token] = 1
-                    else:
-                        bi_count[w1][token] += 1
-                        
-            else:
-                if token not in uni_count:
-                    uni_count[token] = 1
-                else:
-                    uni_count[token] += 1
-                    
-                if w1 not in bi_count:
-                    bi_count[w1] = dict()
-                    bi_count[w1][token] = 1
-                else:
-                    if token not in bi_count[w1]:
-                        bi_count[w1][token] = 1
-                    else:
-                        bi_count[w1][token] += 1
-                
-                if w2 not in tri_count:
-                    tri_count[w2] = dict()
-                    tri_count[w2][w1] = dict()
-                    tri_count[w2][w1][token] = 1
-                elif w1 not in tri_count[w2]:
-                    tri_count[w2][w1] = dict()
-                    tri_count[w2][w1][token] = 1
-                else:
-                    if token not in tri_count[w2][w1]:
-                        tri_count[w2][w1][token] = 1
-                    else:
-                        tri_count[w2][w1][token] += 1
-                
-            w2 = w1
-            w1 = token
+            token_lst.append(token)
             
-        tmp_lst.append(line)
+        tmp_lst.append(token_lst)
     else:
         poem_lst.append(tmp_lst)
         tmp_lst = []
@@ -122,165 +65,194 @@ for line in line_lst:
 
 # In[5]:
 
+train_size = len(poem_lst)
+train_poem = poem_lst[:train_size]
+
+# In[6]:
+
+uni_count = {}
+
+vocabulary = set()
+
+total_count = 0
+
+for poem in train_poem:
+    for line in poem:
+        for token in line:
+            
+            total_count += 1
+            vocabulary.add(token)
+            
+            if token not in uni_count:
+                uni_count[token] = 1
+            else:
+                uni_count[token] += 1
+
+
+# # Handling rare words
+
+# In[7]:
+
+rare_words = set()
+unknown = 'ukn'
+
+for token in uni_count:
+    if uni_count[token] == 1:
+        rare_words.add(token)
+
+uni_count[unknown] = len(rare_words)
+
+
+for token in uni_count.keys():
+    if token in rare_words:
+        vocabulary.remove(token)
+        del uni_count[token]
+        
+vocabulary.add(unknown)
+
+print len(vocabulary)
+
+
+# In[8]:
+
 vocab_index = list(vocabulary)
 vocab_dict = {}
 for i, word in enumerate(vocabulary):
     vocab_dict[word] = i
 
 
-# In[8]:
-
-print len(uni_count)
-print len(bi_count)
-print len(tri_count)
-
-
-# In[8]:
-
-bi_prob = {}
-bi_leftover = {}
-
-for w1 in bi_count:
-    if w1 not in bi_prob:
-        bi_prob[w1] = dict()
-        bi_leftover[w1] = 1
-
-    uni_gram_count = float(uni_count[w1])
-
-    for w0 in bi_count[w1]:
-        bi_prob[w1][w0] = (bi_count[w1][w0]/uni_gram_count)*abs_discount(bi_count[w1][w0])
-        bi_leftover[w1] -= bi_prob[w1][w0]
-
+# # Dictionary + Numpy
 
 # In[9]:
 
-uni_prob = {}
-for w0 in uni_count:
-    uni_prob[w0] = uni_count[w0]/float(total_count)
+start_symbol = 'q0'
+end_symbol = 'qn'
+
+#tri_prob = {}
+bi_prob = {}
+
+for poem in train_poem:
+    w1 = ''
+    #w2 = ''
+    for line in poem:
+        for token in line:
+            
+            
+            # handling rare/unknown words
+            if token in rare_words:
+                token = unknown
+            
+            '''    
+            if w2 != '':
+                if w2 not in tri_prob:
+                    tri_prob[w2] = dict()
+                    
+                if w1 not in tri_prob[w2]:
+                    tri_prob[w2][w1] = np.zeros(len(vocabulary))
+                    
+                tri_prob[w2][w1][vocab_dict[token]] += 1
+                    
+                if w1 not in bi_prob:
+                    bi_prob[w1] = np.zeros(len(vocabulary))
+                    
+                bi_prob[w1][vocab_dict[token]] += 1
+            '''
+            if w1 != '':
+                if w1 not in bi_prob:
+                    bi_prob[w1] = np.zeros(len(vocabulary))
+                    
+                bi_prob[w1][vocab_dict[token]] += 1
+            
+            #w2 = w1
+            w1 = token
 
 
 # In[10]:
 
-bi_alpha = {}
-for w1 in bi_leftover:
-    tmp_prob = 0
-    for w0 in vocabulary:
-        if w0 not in bi_count[w1]:
-            tmp_prob += uni_prob[w0]
-            
-    bi_alpha[w1] = bi_leftover[w1]/tmp_prob
+line_lst = None
+poem_lst = None
 
 
 # In[11]:
 
-bigrams = np.zeros((len(vocabulary), len(vocabulary)))
+bi_leftover = {}
 
-for i in xrange(len(vocabulary)):
-    for j in xrange(len(vocabulary)):
-        if vocab_index[i] in bi_prob and vocab_index[j] in bi_prob[vocab_index[i]]:
-            bigrams[i][j] = bi_prob[vocab_index[i]][vocab_index[j]]
-        elif vocab_index[i] not in bi_prob:
-            bigrams[i][j] = uni_prob[vocab_index[j]]
+for w1 in bi_prob:
+    bi_leftover[w1] = 1
+
+    uni_gram_count = float(uni_count[w1])
+
+    for w0_id in np.where(bi_prob[w1] > 0)[0]:
+        if vocab_index[w0_id] != unknown:
+            bi_prob[w1][w0_id] = (bi_prob[w1][w0_id]/uni_gram_count)*abs_discount(bi_prob[w1][w0_id])
         else:
-            bigrams[i][j] = bi_alpha[vocab_index[i]]*uni_prob[vocab_index[j]]
-
-
-# In[17]:
-
-print np.sum(bigrams[0,:])
-
-
-# In[18]:
-
-tri_prob = {}
-tri_leftover = {}
-
-for w2 in tri_count:
-    if w2 not in tri_prob:
-        tri_prob[w2] = dict()
-        #beta_dict[w2] = dict()
-        tri_leftover[w2] = dict()
-    for w1 in tri_count[w2]:
-        if w1 not in tri_prob[w2]:
-            tri_prob[w2][w1] = dict()
-            #beta_dict[w2][w1] = list()
-            tri_leftover[w2][w1] = 1
+            bi_prob[w1][w0_id] = (bi_prob[w1][w0_id]/uni_gram_count)*ukn_discount(bi_prob[w1][w0_id])
             
-        bi_gram_count = float(bi_count[w2][w1])
+        bi_leftover[w1] -= bi_prob[w1][w0_id]
+
+uni_prob = np.zeros(len(vocabulary))
+for i in xrange(uni_prob.shape[0]):
+    uni_prob[i] = uni_count[vocab_index[i]]/float(total_count)
+
+
+# In[12]:
+
+ukn_discount = 1.0/len(rare_words)
+dis_mass = uni_prob[vocab_dict[unknown]] - (uni_prob[vocab_dict[unknown]]*ukn_discount)
+total_mass = np.sum(uni_prob) - uni_prob[vocab_dict[unknown]]
+for i in xrange(uni_prob.shape[0]):
+    if vocab_index[i] != unknown:
+        uni_prob[i] += (uni_prob[i]*dis_mass)/total_mass
         
-        for w0 in tri_count[w2][w1]:
-            tri_prob[w2][w1][w0] = (tri_count[w2][w1][w0]/bi_gram_count)*abs_discount(tri_count[w2][w1][w0])
-            tri_leftover[w2][w1] -= tri_prob[w2][w1][w0]
+uni_prob[vocab_dict[unknown]] *= ukn_discount
 
 
-# In[ ]:
+# In[13]:
 
-tri_alpha = {}
-for w2 in tri_leftover:
-    tri_alpha[w2] = dict()
-    for w1 in tri_leftover[w2]:
-        tmp_prob = 0
-        for w0 in vocabulary:
-            if w0 not in tri_count[w2][w1]:
-                tmp_prob += bigrams[vocab_dict[w1]][vocab_dict[w0]]
-
-        tri_alpha[w2][w1] = tri_leftover[w2][w1]/tmp_prob
+for w1 in bi_leftover:
+    
+    w0_lst = np.where(bi_prob[w1] == 0)[0]
+    tmp_prob = np.sum(uni_prob[w0_lst])
+    
+    for w0_id in w0_lst:
+        bi_prob[w1][w0_id] = (bi_leftover[w1]/tmp_prob)*uni_prob[w0_id]
 
 
-# In[ ]:
+# In[14]:
 
-trigrams = np.zeros((len(vocabulary), len(vocabulary), len(vocabulary)))
-
-for i in xrange(len(vocabulary)):
-    for j in xrange(len(vocabulary)):
-        for k in xrange(len(vocabulary)):
-            if vocab_index[i] in tri_prob and vocab_index[j] in tri_prob[vocab_index[i]] and vocab_index[k] in tri_prob[vocab_index[i]][vocab_index[j]]:
-                trigrams[i][j][k] = tri_prob[vocab_index[i]][vocab_index[j]][vocab_index[k]]
-            elif vocab_index[i] not in tri_prob or vocab_index[j] not in tri_prob[vocab_index[i]]:
-                trigrams[i][j][k] = bigrams[j][k]
-            else:
-                trigrams[i][j][k] = tri_alpha[vocab_index[i]][vocab_index[j]]*bigrams[j][k]
-
-print np.sum(trigrams)
-
-# In[ ]:
-
-meta_file = open('metadata.txt', 'w+')
+meta_file = codecs.open('poembot/models/metadata.txt', 'w', 'utf-8')
 
 meta_file.write('vocabulary_size:{}\n'.format(len(vocabulary)))
 
-for index in xrange(len(vocab_index)):
-    meta_file.write('{wid} {word}\n'.format(wid=index, word=vocab_index[index]))
+#print  u(vocab_index[6]).encode('utf-8')
+
+for index in xrange(len(vocabulary)):
+    meta_file.write(u'{wid} {word}\n'.format(wid=index, word=vocab_index[index]))
     
 meta_file.close()
 
-unigram_file = open('unigram.txt', 'w+')
+
+# In[15]:
+
+unigram_file = open('poembot/models/unigram.txt', 'w+')
     
 unigram_file.write('unigrams\n')
     
-for i in xrange(len(uni_prob)):
-    unigram_file.write('{wid} {prob}\n'.format(wid=i, prob=uni_prob[vocab_index[i]]))
+for w0_id in xrange(uni_prob.shape[0]):
+    unigram_file.write('{id0} {prob}\n'.format(id0=w0_id, prob=uni_prob[w0_id]))
     
 unigram_file.close()
 
-bigram_file = open('bigram.txt', 'w+')
+
+# In[16]:
+
+bigram_file = open('models/bigram.txt', 'w+')
 
 bigram_file.write('bigrams\n')
 
-for i in xrange(bigrams.shape[0]):
-    for j in xrange(bigrams.shape[1]):
-        bigram_file.write('{w1} {w0} {prob}\n'.format(w1=i, w0=j, prob=bigrams[i][j]))
+for w1 in bi_prob:
+    for w0_id in xrange(bi_prob[w1].shape[0]):
+        bigram_file.write('{id1} {id0} {prob},'.format(id1=vocab_dict[w1], id0=w0_id, prob=bi_prob[w1][w0_id]))
         
 bigram_file.close()
-
-trigram_file = open('trigram.txt', 'w+')
-        
-trigram_file.write('trigrams\n')
-
-for i in xrange(trigrams.shape[0]):
-    for j in xrange(trigrams.shape[1]):
-        for k in xrange(trigrams.shape[2]):
-            trigram_file.write('{w2} {w1} {w0} {prob}\n'.format(w2=i, w1=j, w0=k, prob=trigrams[i][j][k]))
-        
-trigram_file.close()
 
