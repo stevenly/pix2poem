@@ -220,7 +220,7 @@ for w1 in bi_leftover:
 
 # In[14]:
 
-meta_file = codecs.open('poembot/models/metadata.txt', 'w', 'utf-8')
+meta_file = codecs.open('metadata.txt', 'w', 'utf-8')
 
 meta_file.write('vocabulary_size:{}\n'.format(len(vocabulary)))
 
@@ -234,7 +234,7 @@ meta_file.close()
 
 # In[15]:
 
-unigram_file = open('poembot/models/unigram.txt', 'w+')
+unigram_file = open('unigram.txt', 'w+')
     
 unigram_file.write('unigrams\n')
     
@@ -246,7 +246,7 @@ unigram_file.close()
 
 # In[16]:
 
-bigram_file = open('models/bigram.txt', 'w+')
+bigram_file = open('bigram.txt', 'w+')
 
 bigram_file.write('bigrams\n')
 
