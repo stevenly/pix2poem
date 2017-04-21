@@ -12,7 +12,7 @@ import codecs
 
 line_lst = []
 
-with codecs.open('poembot/justpoems.txt', encoding='utf-8') as model_file:
+with codecs.open('poem_data/nopuncReversedPoems.txt', encoding='utf-8') as model_file:
     for line in model_file:
         line_lst.append(line[:-1])
         
