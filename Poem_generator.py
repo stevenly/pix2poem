@@ -7,6 +7,9 @@ from random import shuffle
 import syllable_rhyme_parser as srp
 import generate_rhyme_words as grw
 
+import gc
+gc.disable()
+
 # In[2]:
 
 line_lst = []
@@ -100,13 +103,13 @@ def generate_poem(topic_words):
         
             word = vocab_index[index]
             used_words.add(word)
-        poem_line = [word] + poem_line
-    gen_poem.append(poem_line)
+            poem_line = [word] + poem_line
+        gen_poem.append(poem_line)
 
-for k in range(0, 14):
+    for k in range(0, 14):
     
-    for j in range(0, len(gen_poem[k])):
-        print(gen_poem[k][j], end=' ')
+        for j in range(0, len(gen_poem[k])):
+            print(gen_poem[k][j], end=' ')
         
         print('\n')
 
