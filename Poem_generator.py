@@ -1,5 +1,4 @@
 # coding: utf-8
-# In[46]:
 
 import numpy as np
 import re
@@ -14,7 +13,7 @@ gc.disable()
 
 line_lst = []
 
-with open('models/metadata.txt') as model_file:
+with open('ngram_models/metadata.txt') as model_file:
     for line in model_file:
         line_lst.append(line[:-1])
 
@@ -34,7 +33,7 @@ for i in range(vocab_size):
 # Reading unigram file
 line_lst = []
 
-with open('models/unigram.txt') as model_file:
+with open('ngram_models/unigram.txt') as model_file:
     for line in model_file:
         line_lst.append(line[:-1])
 
@@ -51,7 +50,7 @@ for line in line_lst:
 # Reading bigram file
 line_lst = []
 
-with open('models/bigram.txt') as model_file:
+with open('ngram_models/bigram.txt') as model_file:
     for line in model_file:
         line_lst.append(line[:-1])
 
@@ -67,7 +66,7 @@ for line in line_lst:
     prob = float(prob)
     if w1 not in bigrams:
         bigrams[w1] = np.zeros(vocab_size)
-    
+
     bigrams[w1][w0_id] = prob
 
 
@@ -85,32 +84,37 @@ def generate_poem(topic_words):
         used_words.add(rhyme_words[i])
         
         for j in range(0, 7):
-            # use bayes' rule to calculate the probability backward
-            bayes_prob = np.zeros(vocab_size)
             
-            for w1 in bigrams:
-                prev_token = poem_line[0]
-                if prev_token not in vocab_dict:
-                    prev_token = 'ukn'
-                bayes_prob[vocab_dict[w1]] = bigrams[w1][vocab_dict[prev_token]]*unigrams[vocab_dict[w1]]
+            prev_token = poem_line[0]
+            if prev_token not in vocab_dict:
+                prev_token = 'ukn'
+            #bayes_prob[vocab_dict[w1]] = bigrams[w1][vocab_dict[prev_token]]*unigrams[vocab_dict[w1]]
             
             index = -1
-            indices = np.argsort(bayes_prob)[-20:]
-            for k in range(1, len(indices) + 1):
-                if vocab_index[indices[-k]] not in used_words:
-                    index = indices[-k]
-                    break
-        
+            
+            if prev_token in bigrams:
+                indices = np.argsort(bigrams[prev_token])[-40:]
+                for k in range(1, len(indices) + 1):
+                    if vocab_index[indices[-k]] not in used_words:
+                        index = indices[-k]
+                        break
+            else:
+                indices = np.argsort(unigrams)[-50:]
+                for k in range(1, len(indices) + 1):
+                    if vocab_index[indices[-k]] not in used_words:
+                        index = indices[-k]
+                        break
+
             word = vocab_index[index]
             used_words.add(word)
             poem_line = [word] + poem_line
         gen_poem.append(poem_line)
 
     for k in range(0, 14):
-    
+
         for j in range(0, len(gen_poem[k])):
             print(gen_poem[k][j], end=' ')
-        
+
         print('\n')
 
 #generate_poem('gato')
