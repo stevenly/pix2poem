@@ -107,7 +107,7 @@ def syllable_count(text):
     return count
 
 
-def syllable_count_list(words):
+def syllable_count_deque(words):
     word_structures = [WordStructure(word) for word in words]
     count = 0
     for i in range(0, len(word_structures)):

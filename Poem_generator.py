@@ -4,7 +4,7 @@ import numpy as np
 import syllable_rhyme_parser as srp
 import generate_rhyme_words as grw
 import copy
-
+import random
 import gc
 gc.disable()
 
@@ -79,8 +79,8 @@ def generate_poem(topic_words):
         curr_beam_search = [[rhyme_words[i]]]
         curr_beam_search_prob = [0]
         expand_beam(curr_beam_search, curr_beam_search_prob, gen_poem, used_words)
-    for k in range(0, 14):
-        print(gen_poem[k])
+    for line in gen_poem:
+        print(line)
 
 
 def expand_beam(curr_beam_search, curr_beam_search_prob, gen_poem, used_words):
@@ -124,8 +124,9 @@ def expand_beam(curr_beam_search, curr_beam_search_prob, gen_poem, used_words):
         for index in beam_indices_to_add:
             curr_beam_search.append(expanded_beam_search[index])
             curr_beam_search_prob.append(expanded_beam_search_prob[index])
-        for index in range(0, len(curr_beam_search)):
-            if srp.syllable_count_list(curr_beam_search[index]) == 11:
+        random.shuffle(curr_beam_search)
+        for index in reversed(range(0, len(curr_beam_search))):
+            if srp.syllable_count_deque(curr_beam_search[index]) == 11:
                 sentence_string = curr_beam_search[index][0]
                 used_words.add(curr_beam_search[index][0])
                 for a in range(1, len(curr_beam_search[index])):
@@ -133,7 +134,7 @@ def expand_beam(curr_beam_search, curr_beam_search_prob, gen_poem, used_words):
                     sentence_string = sentence_string + ' ' + curr_beam_search[index][a]
                 gen_poem.append(sentence_string)
                 return
-            elif srp.syllable_count_list(curr_beam_search[index]) > 11:
+            elif srp.syllable_count_deque(curr_beam_search[index]) > 11:
                 del curr_beam_search[index]
 
 
