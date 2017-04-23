@@ -107,6 +107,29 @@ def syllable_count(text):
     return count
 
 
+def syllable_count_list(words):
+    word_structures = [WordStructure(word) for word in words]
+    count = 0
+    for i in range(0, len(word_structures)):
+        # for the last word, count up to it's less stressed syllable and add one
+        if i == len(words) - 1:
+            # check for sinelafa where there's two consecutive words: the first word ends with a vowel, second word
+            # starts with a vowel. Subtract one from the word count if so
+            if i != 0:
+                if word_structures[i-1].ends_with_vowel and word_structures[i].starts_with_vowel:
+                    count -= 1
+            last_stress_index = 0
+            for j in range(0, len(word_structures[i].stress)):
+                if word_structures[i].stress[j] == 1:
+                    last_stress_index = j
+            count += last_stress_index + 2
+        else:
+            if i != 0:
+                if word_structures[i-1].ends_with_vowel and word_structures[i].starts_with_vowel:
+                    count -= 1
+            count += word_structures[i].syllables
+
+    return count
 
 
 
