@@ -252,7 +252,7 @@ bigram_file.write('bigrams\n')
 
 for w1 in bi_prob:
     for w0_id in xrange(bi_prob[w1].shape[0]):
-        bigram_file.write('{id1} {id0} {prob},'.format(id1=vocab_dict[w1], id0=w0_id, prob=math.log(bi_prob[w1])[w0_id]))
+        bigram_file.write('{id1} {id0} {prob},'.format(id1=vocab_dict[w1], id0=w0_id, prob=math.log(bi_prob[w1][w0_id])))
         
 bigram_file.close()
 
