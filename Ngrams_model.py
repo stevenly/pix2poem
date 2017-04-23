@@ -6,7 +6,7 @@
 import numpy as np
 import re
 import codecs
-
+import math
 
 # In[2]:
 
@@ -239,7 +239,7 @@ unigram_file = open('unigram.txt', 'w+')
 unigram_file.write('unigrams\n')
     
 for w0_id in xrange(uni_prob.shape[0]):
-    unigram_file.write('{id0} {prob}\n'.format(id0=w0_id, prob=uni_prob[w0_id]))
+    unigram_file.write('{id0} {prob}\n'.format(id0=w0_id, prob=math.log(uni_prob[w0_id])))
     
 unigram_file.close()
 
@@ -252,7 +252,7 @@ bigram_file.write('bigrams\n')
 
 for w1 in bi_prob:
     for w0_id in xrange(bi_prob[w1].shape[0]):
-        bigram_file.write('{id1} {id0} {prob},'.format(id1=vocab_dict[w1], id0=w0_id, prob=bi_prob[w1][w0_id]))
+        bigram_file.write('{id1} {id0} {prob},'.format(id1=vocab_dict[w1], id0=w0_id, prob=math.log(bi_prob[w1])[w0_id]))
         
 bigram_file.close()
 
