@@ -22,11 +22,13 @@ line_lst = line_lst[1:]
 beam_width = 50
 vocab_index = []
 vocab_dict = {}
+ws_dict = {}
 
 for i in range(vocab_size):
     wid, word = line_lst[i].split()
     vocab_index.append(word)
     vocab_dict[word] = int(wid)
+    ws_dict[word] = srp.WordStructure(word)
 
 # Reading unigram file
 line_lst = []
@@ -126,7 +128,7 @@ def expand_beam(curr_beam_search, curr_beam_search_prob, gen_poem, used_words):
             curr_beam_search_prob.append(expanded_beam_search_prob[index])
         random.shuffle(curr_beam_search)
         for index in reversed(range(0, len(curr_beam_search))):
-            if srp.syllable_count_deque(curr_beam_search[index]) == 11:
+            if srp.syllable_count_list(curr_beam_search[index]) == 11:
                 sentence_string = curr_beam_search[index][0]
                 used_words.add(curr_beam_search[index][0])
                 for a in range(1, len(curr_beam_search[index])):
@@ -134,7 +136,7 @@ def expand_beam(curr_beam_search, curr_beam_search_prob, gen_poem, used_words):
                     sentence_string = sentence_string + ' ' + curr_beam_search[index][a]
                 gen_poem.append(sentence_string)
                 return
-            elif srp.syllable_count_deque(curr_beam_search[index]) > 11:
+            elif srp.syllable_count_list(curr_beam_search[index]) > 11:
                 del curr_beam_search[index]
 
 

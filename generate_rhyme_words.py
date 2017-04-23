@@ -110,7 +110,7 @@ def get_rhyme_words_with_vocab(topic_words, vocabulary):
 
     while valid_rhyme_class_count < 4:
         rhyme_classes = dict()
-        a = random.randint(0, 7)
+        a = random.randint(0, 10)
         related_words = model.most_similar(positive=related_words[a][0], topn=1000)
         for key, value in related_words:
             if key.lower() not in filtered_set and key.lower() in vocabulary:
