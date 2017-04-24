@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import random
+
 accented_vowels = ['á', 'é', 'í', 'ó', 'ú', 'Á', 'É', 'Í', 'Ó', 'Ú']
 strong_vowels = ['a', 'e', 'o', 'A', 'E', 'O']
 weak_vowels = ['i', 'u', 'I', 'U']
@@ -130,6 +132,53 @@ def syllable_count_list(words):
             count += word_structures[i].syllables
 
     return count
+
+
+def add_punc_and_capital(poem):
+    line_words = []
+    for line in poem:
+        line_words.append(line.split())
+    pattern = random.randint(0, 1)
+    poem_strings = []
+    if pattern == 0:
+        # capitalize start of lines
+        line_words[0][0] = line_words[0][0].title()
+        line_words[2][0] = line_words[2][0].title()
+        line_words[4][0] = line_words[4][0].title()
+        line_words[5][0] = line_words[5][0].title()
+        line_words[8][0] = line_words[8][0].title()
+        line_words[10][0] = line_words[10][0].title()
+        line_words[11][0] = line_words[10][0].title()
+        for line_word in line_words:
+            temp_line = line_word[0]
+            for i in range(1, len(line_word)):
+                temp_line = temp_line + ' ' + line_word[i]
+            poem_strings.append(temp_line)
+        for i in range(0, len(line_words)):
+            if i == 1 or i == 3 or i == 4 or i == 7 or i == 9 or i == 10 or i == 13:
+                poem_strings[i] += '.'
+            else:
+                poem_strings[i] += ','
+    else:
+        line_words[0][0] = line_words[0][0].title()
+        line_words[1][0] = line_words[1][0].title()
+        line_words[4][0] = line_words[4][0].title()
+        line_words[6][0] = line_words[6][0].title()
+        line_words[8][0] = line_words[8][0].title()
+        line_words[11][0] = line_words[11][0].title()
+        line_words[13][0] = line_words[13][0].title()
+        for line_word in line_words:
+            temp_line = line_word[0]
+            for i in range(1, len(line_word)):
+                temp_line = temp_line + ' ' + line_word[i]
+            poem_strings.append(temp_line)
+        for i in range(0, len(line_words)):
+            if i == 0 or i == 3 or i == 5 or i == 7 or i == 10 or i == 12 or i == 13:
+                poem_strings[i] += '.'
+            else:
+                poem_strings[i] += ','
+    return poem_strings
+
 
 
 
