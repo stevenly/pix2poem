@@ -1,9 +1,13 @@
 import tensorflow as tf
 import numpy as np
+import sys
+sys.path.insert(0,'..')
+
+import syllable_rhyme_parser as srp
 
 
 class BeamSearch():
-    def __init__(self, predict, initial_state, prime_labels):
+    def __init__(self, words, predict, initial_state, prime_labels):
         """Initializes the beam search.
 
         Args:
@@ -22,6 +26,7 @@ class BeamSearch():
         self.predict = predict
         self.initial_state = initial_state
         self.prime_labels = prime_labels
+        self.words = words
 
     def predict_samples(self, samples, states):
         probs = []
@@ -66,7 +71,7 @@ class BeamSearch():
         live_samples = [prime_sample]
         live_scores = [prime_score]
         live_states = [prime_state]
-
+        
         while live_k and dead_k < k:
             # total score for every sample is sum of -log of word prb
             cand_scores = np.array(live_scores)[:, None] - np.log(probs)
@@ -84,20 +89,38 @@ class BeamSearch():
             live_states = [live_states[r // voc_size] for r in ranks_flat]
 
             # live samples that should be dead are...
-            zombie = [s[-1] == eos or len(s) >= maxsample for s in live_samples]
+            live_string_samples = []
+            for sample in live_samples:
+                string_sample = []
+                for s in sample:
+                    string_sample = [self.words[s]] + string_sample
+                live_string_samples.append(string_sample)
+            
+            zombie = []
+            for sample in live_string_samples:
+                if srp.syllable_count_list(sample) == 11:
+                    zombie.append(1)
+                elif srp.syllable_count_list(sample) > 11:
+                    zombie.append(2)
+                else:
+                    zombie.append(0)
+            #zombie = [s[-1] == eos or len(s) >= maxsample for s in live_samples]
 
             # add zombies to the dead
-            dead_samples += [s for s, z in zip(live_samples, zombie) if z]  # remove first label == empty
-            dead_scores += [s for s, z in zip(live_scores, zombie) if z]
-            dead_states += [s for s, z in zip(live_states, zombie) if z]
+            dead_samples += [s for s, z in zip(live_samples, zombie) if z == 1]  # remove first label == empty
+            dead_scores += [s for s, z in zip(live_scores, zombie) if z == 1]
+            dead_states += [s for s, z in zip(live_states, zombie) if z == 1]
             dead_k = len(dead_samples)
             # remove zombies from the living
-            live_samples = [s for s, z in zip(live_samples, zombie) if not z]
-            live_scores = [s for s, z in zip(live_scores, zombie) if not z]
-            live_states = [s for s, z in zip(live_states, zombie) if not z]
+            live_samples = [s for s, z in zip(live_samples, zombie) if z == 0]
+            live_scores = [s for s, z in zip(live_scores, zombie) if z == 0]
+            live_states = [s for s, z in zip(live_states, zombie) if z == 0]
             live_k = len(live_samples)
+            
+            #print dead_k
+            #print live_k
 
             # Finally, compute the next-step probabilities and states.
             probs, live_states = self.predict_samples(live_samples, live_states)
-
-        return dead_samples + live_samples, dead_scores + live_scores
+            
+        return dead_samples, dead_scores

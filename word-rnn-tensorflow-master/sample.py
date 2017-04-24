@@ -10,6 +10,11 @@ from six.moves import cPickle
 from utils import TextLoader
 from model import Model
 
+import sys
+sys.path.insert(0, '..')
+
+import generate_rhyme_words as grw
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--save_dir', type=str, default='save',
@@ -38,9 +43,19 @@ def sample(args):
         tf.global_variables_initializer().run()
         saver = tf.train.Saver(tf.global_variables())
         ckpt = tf.train.get_checkpoint_state(args.save_dir)
+        
+        #['cricetomys', 'cachora', 'roedora', 'loxodontomys', 'cynomys', 'vibora', 'silbadora', 'liomys', 'barbet', 'lemur', 'civet', 'langur', 'basset', 'farfur']
+        topic_words = args.prime.split()
+        rhyme_words = grw.generate_rhyme_words(topic_words)
+        
         if ckpt and ckpt.model_checkpoint_path:
             saver.restore(sess, ckpt.model_checkpoint_path)
-            print(model.sample(sess, words, vocab, args.n, args.prime, args.sample, args.pick, args.width))
+            poem_gen = []
+            for i in range(len(rhyme_words)):
+                poem_gen.append(model.sample(sess, words, vocab, args.n, rhyme_words[i], args.sample, args.pick, args.width))
+
+            for line in poem_gen:
+                print(line)
 
 if __name__ == '__main__':
     main()

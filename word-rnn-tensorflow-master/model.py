@@ -6,6 +6,11 @@ import numpy as np
 
 from beam import BeamSearch
 
+import sys
+sys.path.insert(0,'..')
+
+import syllable_rhyme_parser as srp
+
 class Model():
     def __init__(self, args, infer=False):
         self.args = args
@@ -104,19 +109,19 @@ class Model():
 
         def beam_search_pick(prime, width):
             """Returns the beam search pick."""
-            if not len(prime) or prime == ' ':
+            if not len(prime) or prime == ' ' or prime not in vocab:
                 prime = random.choice(list(vocab.keys()))
             prime_labels = [vocab.get(word, 0) for word in prime.split()]
-            bs = BeamSearch(beam_search_predict,
+            bs = BeamSearch(words, beam_search_predict,
                             sess.run(self.cell.zero_state(1, tf.float32)),
                             prime_labels)
             samples, scores = bs.search(None, None, k=width, maxsample=num)
             return samples[np.argmin(scores)]
-
+        
         ret = ''
         if pick == 1:
             state = sess.run(self.cell.zero_state(1, tf.float32))
-            if not len(prime) or prime == ' ':
+            if not len(prime) or prime == ' ' or prime not in vocab:
                 prime  = random.choice(list(vocab.keys()))
             print (prime)
             for word in prime.split()[:-1]:
@@ -150,6 +155,7 @@ class Model():
                 word = pred
         elif pick == 2:
             pred = beam_search_pick(prime, width)
+            
             for i, label in enumerate(pred):
-                ret += ' ' + words[label] if i > 0 else words[label]
-        return ret
+                ret = words[label] + ' ' + ret if i > 0 else words[label]
+        return ret.lower()
