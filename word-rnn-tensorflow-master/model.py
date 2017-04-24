@@ -6,11 +6,6 @@ import numpy as np
 
 from beam import BeamSearch
 
-import sys
-sys.path.insert(0,'..')
-
-import syllable_rhyme_parser as srp
-
 class Model():
     def __init__(self, args, infer=False):
         self.args = args
