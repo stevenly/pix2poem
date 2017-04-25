@@ -33,6 +33,28 @@ for i in range(vocab_size):
     vocab_dict[word] = int(wid)
     ws_dict[word] = srp.WordStructure(word)
 
+# Reading unigram file
+line_lst = []
+
+with open('ngram_models/unigram.txt') as model_file:
+    for line in model_file:
+        line_lst.append(line[:-1])
+
+model_file.close()
+
+line_lst = line_lst[1:]
+unigrams = np.zeros(vocab_size)
+for line in line_lst:
+    w0_id, prob = line.split()
+    w0_id = int(w0_id)
+    prob = float(prob)
+    unigrams[w0_id] = prob
+
+indices = np.argsort(unigrams)[-50:]
+top_vocab = []
+for index in indices:
+    top_vocab.append(vocab_index[index])
+
 
 def get_rhyme_words(topic_words):
     a_rhymes = []
@@ -238,8 +260,9 @@ def get_valid_rhyme_words_size_4(topic_words, vocabulary):
     filtered_set = set()
 
     for word in topic_words:
-        filtered_set.add(word.lower())
-        word_prob_list.append((word.lower(), 2))
+        if word not in top_vocab:
+            filtered_set.add(word.lower())
+            word_prob_list.append((word.lower(), 2))
 
     translator = str.maketrans('', '', string.punctuation)
 
