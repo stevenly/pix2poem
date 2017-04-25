@@ -81,6 +81,7 @@ def generate_poem(topic_words):
         curr_beam_search = [[rhyme_words[i]]]
         curr_beam_search_prob = [0]
         expand_beam(curr_beam_search, curr_beam_search_prob, gen_poem, used_words)
+    gen_poem = srp.add_punc_and_capital(gen_poem)
     for line in gen_poem:
         print(line)
 
