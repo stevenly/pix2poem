@@ -194,61 +194,32 @@ def get_rhyme_words_image(image_captions):
     c_rhymes = []
     d_rhymes = []
 
-    rhyme_classes = dict()
-
-    related_words = model.most_similar(positive=topic_words, topn=1000)
-
-    filtered_set = set()
-    for key, value in related_words:
-        if key.lower() not in filtered_set:
-            filtered_set.add(key.lower())
-
-    for key in filtered_set:
-        ws = WordStructure(key)
-        if ws.rhyme in rhyme_classes:
-            rhyme_classes[ws.rhyme].append(key)
-        else:
-            rhyme_classes[ws.rhyme] = [key]
-    valid_rhyme_class_count = 0
-    valid_rhyme_classes = []
-    for key, value in rhyme_classes.items():
-        if len(value) >= 4:
-            valid_rhyme_classes.append(key)
-            valid_rhyme_class_count += 1
-
-    while valid_rhyme_class_count < 4:
-        rhyme_classes = dict()
-        a = random.randint(0, 7)
-        related_words = model.most_similar(positive=related_words[a][0], topn=1000)
-        for key, value in related_words:
-            if key.lower() not in filtered_set:
-                filtered_set.add(key.lower())
-
-        for key in filtered_set:
-            ws = WordStructure(key)
-            if ws.rhyme in rhyme_classes:
-                rhyme_classes[ws.rhyme].append(key)
-            else:
-                rhyme_classes[ws.rhyme] = [key]
-        valid_rhyme_class_count = 0
-        valid_rhyme_classes = []
-        for key, value in rhyme_classes.items():
-            if len(value) >= 4:
-                valid_rhyme_classes.append(key)
-                valid_rhyme_class_count += 1
-
-    shuffle(valid_rhyme_classes)
-    for key in valid_rhyme_classes:
-        if len(a_rhymes) == 0:
-            a_rhymes = rhyme_classes[key][0:4]
-        elif len(b_rhymes) == 0:
-            b_rhymes = rhyme_classes[key][0:4]
-        elif len(c_rhymes) == 0:
-            c_rhymes = rhyme_classes[key][0:3]
-        elif len(d_rhymes) == 0:
-            d_rhymes = rhyme_classes[key][0:3]
-        else:
-            break
+    if len(image_captions) == 1:
+        return get_rhyme_words(image_captions[0].split())
+    elif len(image_captions) == 2:
+        first_set = get_valid_rhyme_words_size_4(image_captions[0].split(), ws_dict)
+        second_set = get_valid_rhyme_words_size_4(image_captions[1].split(), ws_dict)
+        a_rhymes = first_set[0][0:4]
+        b_rhymes = first_set[1][0:4]
+        c_rhymes = second_set[0][0:3]
+        d_rhymes = second_set[1][0:3]
+    elif len(image_captions) == 3:
+        first_set = get_valid_rhyme_words_size_4(image_captions[0].split(), ws_dict)
+        second_set = get_valid_rhyme_words_size_4(image_captions[1].split(), ws_dict)
+        third_set = get_valid_rhyme_words_size_4(image_captions[2].split(), ws_dict)
+        a_rhymes = first_set[0][0:4]
+        b_rhymes = first_set[1][0:4]
+        c_rhymes = second_set[0][0:3]
+        d_rhymes = third_set[0][0:3]
+    else:
+        first_set = get_valid_rhyme_words_size_4(image_captions[0].split(), ws_dict)
+        second_set = get_valid_rhyme_words_size_4(image_captions[1].split(), ws_dict)
+        third_set = get_valid_rhyme_words_size_4(image_captions[2].split(), ws_dict)
+        fourth_set = get_valid_rhyme_words_size_4(image_captions[3].split(), ws_dict)
+        a_rhymes = first_set[0][0:4]
+        b_rhymes = second_set[0][0:4]
+        c_rhymes = third_set[0][0:3]
+        d_rhymes = fourth_set[0][0:3]
 
     classes_to_return = [a_rhymes[0], b_rhymes[0], b_rhymes[1], a_rhymes[1], a_rhymes[2], b_rhymes[2],
                          b_rhymes[3], a_rhymes[3], c_rhymes[0], d_rhymes[0], c_rhymes[1], d_rhymes[1],
