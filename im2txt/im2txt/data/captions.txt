@@ -1,0 +1,80 @@
+Captions for image 1.jpg:
+  0) a bird sitting on a branch of a tree . (p=0.002806)
+  1) a small bird sitting on a branch of a tree . (p=0.001491)
+  2) a small bird sitting on a branch in a tree . (p=0.001172)
+Captions for image 2.jpg:
+  0) a steam engine train traveling down train tracks . (p=0.002347)
+  1) a steam engine train traveling down the tracks . (p=0.000515)
+  2) a steam engine train traveling down the tracks (p=0.000131)
+Captions for image 3.jpg:
+  0) a woman riding a wave on top of a surfboard . (p=0.007047)
+  1) a woman riding a wave on a surfboard . (p=0.002331)
+  2) a woman in a bikini riding a wave on a surfboard . (p=0.001428)
+Captions for image 4.jpg:
+  0) a statue of a man riding a skateboard in front of a building . (p=0.000150)
+  1) a statue of a man riding a skateboard on a sidewalk . (p=0.000065)
+  2) a statue of a man riding a skateboard on top of a brick wall . (p=0.000022)
+Captions for image 5.jpg:
+  0) a panda bear sitting on top of a grass covered field . (p=0.000302)
+  1) a panda bear sitting on top of a pile of grass . (p=0.000151)
+  2) a black and white panda bear sitting on top of a pile of grass . (p=0.000015)
+Captions for image 6.jpg:
+  0) a man riding a skateboard up the side of a ramp . (p=0.010124)
+  1) a man riding a skateboard on a ramp . (p=0.002115)
+  2) a man riding a skateboard on top of a ramp . (p=0.001858)
+Captions for image 7.jpg:
+  0) a male tennis player in action on the court . (p=0.005122)
+  1) a man is playing tennis on a tennis court . (p=0.001086)
+  2) a male tennis player in a white shirt is playing tennis (p=0.000620)
+Captions for image 8.jpg:
+  0) a brown horse standing on top of a lush green field . (p=0.005312)
+  1) a brown horse standing on top of a grass covered field . (p=0.002820)
+  2) a brown horse standing on top of a lush green hillside . (p=0.001277)
+Captions for image 9.jpg:
+  0) a tree in the middle of a forest . (p=0.000092)
+  1) a tree with a bunch of fruit on it (p=0.000084)
+  2) a tree in the middle of a forest with trees . (p=0.000011)
+Captions for image 10.jpg:
+  0) a bird sitting on a sandy beach next to the ocean . (p=0.000183)
+  1) a bird sitting on a beach next to the ocean . (p=0.000150)
+  2) a bird sitting on a beach next to a body of water . (p=0.000080)
+Captions for image 11.jpg:
+  0) a close up of a sandwich on a plate (p=0.005287)
+  1) a close up of a plate of food with a sandwich (p=0.001743)
+  2) a close up of a plate of food on a table (p=0.000834)
+Captions for image 12.jpg:
+  0) a person riding a bike on a road (p=0.000963)
+  1) a man riding a bike down a road . (p=0.000620)
+  2) a man riding a bike down a road next to a forest . (p=0.000128)
+Captions for image 13.jpg:
+  0) a boat that is sitting in the water . (p=0.002964)
+  1) a small boat in a body of water (p=0.002314)
+  2) a boat that is floating in the water . (p=0.001721)
+Captions for image 14.jpg:
+  0) a man riding skis down a snow covered slope . (p=0.023997)
+  1) a person riding skis down a snow covered slope . (p=0.009266)
+  2) a person riding skis on a snowy slope (p=0.005335)
+Captions for image 15.jpg:
+  0) a train traveling over a bridge over a river . (p=0.002822)
+  1) a train traveling over a bridge over water . (p=0.001062)
+  2) a train on a bridge over a body of water (p=0.000521)
+Captions for image 16.jpg:
+  0) a group of elephants standing in a field . (p=0.000881)
+  1) a group of elephants standing in a grassy field . (p=0.000707)
+  2) a group of elephants walking through a grassy field . (p=0.000372)
+Captions for image 17.jpg:
+  0) a person flying a kite on a beach . (p=0.003074)
+  1) a person flying a kite on the beach . (p=0.002988)
+  2) a man flying a kite on a beach . (p=0.001923)
+Captions for image 18.jpg:
+  0) a red stop sign sitting on the side of a road . (p=0.012250)
+  1) a red stop sign sitting on the side of a street . (p=0.000446)
+  2) a red stop sign sitting on top of a metal pole . (p=0.000240)
+Captions for image 19.jpg:
+  0) a baseball player swinging a bat at a ball (p=0.006506)
+  1) a baseball player holding a bat on top of a field . (p=0.005245)
+  2) a baseball player swinging a bat at a ball . (p=0.004192)
+Captions for image 20.jpg:
+  0) a man riding a snowboard down a snow covered slope . (p=0.004172)
+  1) a man riding a snowboard down the side of a snow covered slope . (p=0.002412)
+  2) a man riding a snowboard on top of a snow covered slope . (p=0.001772)
