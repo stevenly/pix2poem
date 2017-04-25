@@ -5,6 +5,7 @@ import random
 import numpy as np
 import string
 
+import syllable_rhyme_parser as srp
 from syllable_rhyme_parser import WordStructure
 
 model = models.KeyedVectors.load_word2vec_format('SBW-vectors-300-min5.bin', binary=True)
