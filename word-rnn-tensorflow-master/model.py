@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import tensorflow as tf
 from tensorflow.contrib import rnn
 from tensorflow.contrib import legacy_seq2seq
@@ -83,7 +84,7 @@ class Model():
         optimizer = tf.train.AdamOptimizer(self.lr)
         self.train_op = optimizer.apply_gradients(zip(grads, tvars))
 
-    def sample(self, sess, words, vocab, num=200, prime='first all', sampling_type=1, pick=0, width=4):
+    def sample(self, sess, words, vocab, state, num=200, prime='first all', sampling_type=1, pick=0, width=4):
         def weighted_pick(weights):
             t = np.cumsum(weights)
             s = np.sum(weights)
@@ -102,22 +103,29 @@ class Model():
                                             feed)
             return probs, final_state
 
-        def beam_search_pick(prime, width):
+        def beam_search_pick(state, prime, rhyme_word, width):
             """Returns the beam search pick."""
-            if not len(prime) or prime == ' ' or prime not in vocab:
-                prime = random.choice(list(vocab.keys()))
             prime_labels = [vocab.get(word, 0) for word in prime.split()]
+            if state == None:
+                state = sess.run(self.cell.zero_state(1, tf.float32))
             bs = BeamSearch(words, beam_search_predict,
-                            sess.run(self.cell.zero_state(1, tf.float32)),
+                            state,
                             prime_labels)
-            samples, scores = bs.search(None, None, k=width, maxsample=num)
-            return samples[np.argmin(scores)]
+            samples, scores, states = bs.search(None, None, rhyme_word, k=width, maxsample=num)
+            return samples[np.argmin(scores)], states[np.argmin(scores)]
         
         ret = ''
+        rhyme_word = None
+        
+        if not len(prime) or prime == ' ' or prime not in vocab:
+            rhyme_word = prime
+            rhyme_word = rhyme_word.encode('utf-8')
+            prime  = random.choice(list(vocab.keys()))
+        
         if pick == 1:
-            state = sess.run(self.cell.zero_state(1, tf.float32))
-            if not len(prime) or prime == ' ' or prime not in vocab:
-                prime  = random.choice(list(vocab.keys()))
+            rhyme_word = None
+            if state == None:
+                state = sess.run(self.cell.zero_state(1, tf.float32))
             print (prime)
             for word in prime.split()[:-1]:
                 print (word)
@@ -149,8 +157,12 @@ class Model():
                 ret += ' ' + pred
                 word = pred
         elif pick == 2:
-            pred = beam_search_pick(prime, width)
-            
-            for i, label in enumerate(pred):
-                ret = words[label] + ' ' + ret if i > 0 else words[label]
-        return ret.lower()
+            pred, state = beam_search_pick(state, prime, rhyme_word, width)
+            #print (type(state[1]))
+            if rhyme_word == None:
+                for i, label in enumerate(pred):
+                    ret = words[label] + ' ' + ret if i > 0 else words[label]
+            else:
+                for i, label in enumerate(pred):
+                    ret = words[label] + ' ' + ret if i > 0 else rhyme_word
+        return ret.lower(), state

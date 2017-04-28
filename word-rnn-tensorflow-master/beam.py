@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import tensorflow as tf
 import numpy as np
 import sys
@@ -37,7 +38,7 @@ class BeamSearch():
             next_states.append(next_state)
         return np.array(probs), next_states
 
-    def search(self, oov, eos, k=1, maxsample=4000, use_unk=False):
+    def search(self, oov, eos, rhyme_word, k=1, maxsample=4000, use_unk=False):
         """Return k samples (beams) and their NLL scores.
 
         Each sample is a sequence of labels, either ending with `eos` or
@@ -90,10 +91,15 @@ class BeamSearch():
 
             # live samples that should be dead are...
             live_string_samples = []
-            for sample in live_samples:
+            for i in range(len(live_samples)):
+                sample = live_samples[i]
+                if len(sample) > 1 and sample[-1] == sample[-2]:
+                    live_scores[i] += 30
                 string_sample = []
                 for s in sample:
                     string_sample = [self.words[s]] + string_sample
+                if rhyme_word != None:
+                    string_sample[-1] = rhyme_word
                 live_string_samples.append(string_sample)
             
             zombie = []
@@ -117,10 +123,8 @@ class BeamSearch():
             live_states = [s for s, z in zip(live_states, zombie) if z == 0]
             live_k = len(live_samples)
             
-            #print dead_k
-            #print live_k
 
             # Finally, compute the next-step probabilities and states.
             probs, live_states = self.predict_samples(live_samples, live_states)
             
-        return dead_samples, dead_scores
+        return dead_samples, dead_scores, dead_states
