@@ -11,3 +11,5 @@ Our poems will be evaluated by human evaluators
 on rhyme structure, fluency, and poeticness.
 
 Word2Vec, RNN, n-gram, and image captioning models are not uploaded to Github, since their file sizes are too big.
+
+![poem example](bird_poem.png)
